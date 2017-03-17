@@ -2,12 +2,17 @@ from tkinter import *
 from tkinter import messagebox
 from os import system
 from clipboard import paste
+from salvar import lancar
 
 
 class Janela(object):
     """Classe que implementa a janela do cliente."""
     def __init__(self, master):
-        self.frame = Frame(master)
+        # Janela principal
+        self.janela = master
+
+        # Frame dos potoẽs de cima da tela
+        self.frame = Frame(self.janela)
         self.frame.pack()
         
         self.botao_adicionar = Button(self.frame, text="Adicionar", command=self.__novo_entry, bd=3)
@@ -18,7 +23,7 @@ class Janela(object):
         self.botao_deletar['font'] = ('Arial', 12)
         self.botao_deletar.pack(padx=30, side="right")
         
-        self.frame2 = Frame(master)
+        self.frame2 = Frame(self.janela)
         self.frame2.pack()
 
         # Barra de rolagem vertical
@@ -40,11 +45,27 @@ class Janela(object):
         self.listbox.config(xscrollcommand=self.scrollbarx.set)
         self.scrollbarx.config(command=self.listbox.xview)
 
-        self.frame3 = Frame(master)
+        self.frame3 = Frame(self.janela)
         self.frame3.pack()
         self.botao_baixar = Button(self.frame3, text="Baixar", command=self.__baixar, bd=3)
         self.botao_baixar['font'] = ('Arial', 12)
         self.botao_baixar.pack(pady=10)
+
+        self.plot_menu()
+        system('echo "src: $(pwd)/" > config.txt')
+
+    def plot_menu(self):
+        """
+        Plota o menu de opções.
+
+        :return: Sem retorno.
+        """
+        self.menu = Menu(self.janela)
+        self.janela.config(menu=self.menu)
+
+        self.menu_config = Menu(self.menu)
+        self.menu.add_cascade(label="Editar", menu=self.menu_config)
+        self.menu_config.add_command(label="Configurações", command=lancar)
 
     def __novo_entry(self):
         """
@@ -88,8 +109,20 @@ class Janela(object):
         """
         links = self.listbox.get(0, END)
         for img in range(len(self.listbox.get(0, END))):
-            pass
-            print("wget %s -O %d.jpg" % (links[img], img))
-            system("wget %s -O %02d.jpg" % (links[img], img))
+            # print("cd %s && wget %s -O %02d.jpg" %(self.__get_diretorio(), links[img], img))
+            # system("cd %s && wget %s -O %02d.jpg && pwd" % (self.__get_diretorio(), links[img], img))
+            system("./baixar.sh %s %s %s" % (self.__get_diretorio(), links[img], img))
         messagebox.showinfo("Download", "Download Completo")
         exit()
+
+    def __get_diretorio(self):
+        """
+        Pega o caminho da pasta de destino.
+
+        :return: String.
+        """
+        file = open("config.txt", 'r')
+        for line in file.readlines():
+            pass
+            if("src:" in line):
+                return line.split("src: ")[-1].split("\n")[0]

@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Script de up dos aquivos
+upar.py
+
+# Arquivo de lembretes.
+todo.txt
